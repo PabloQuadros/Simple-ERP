@@ -13,7 +13,10 @@ namespace SimpleEPR
 
             InventoryControl.ReadInventory();
             InventoryControl.PrintInventory();
-            
+           
+           
+
+
         }    
     }
 }

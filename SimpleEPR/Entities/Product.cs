@@ -6,10 +6,10 @@ namespace SimpleEPR.Entities
 {
     internal class Product
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public double Price { get; private set; } 
-        public int Quantity { get; private set; }
+        public int Id { get;  set; }
+        public string Name { get;  set; }
+        public double Price { get;  set; } 
+        public int Quantity { get;  set; }
 
 
         public Product(int id, string name, double price, int quantity)

@@ -11,21 +11,25 @@ namespace SimpleEPR.Entities
     {
    
         public static List<Product> Products { get; private set; } = new List<Product>();
+        public static int colCount { get; set; }
+        public static int rowCount { get; set; }
+
+        static FileInfo existingFile;
+        
+        static ExcelPackage Inventory = null;
+        static ExcelWorksheet worksheet;
         public  static void ReadInventory()
         {
-
-            ExcelPackage Inventory = null;
-
             try
             {
-                FileInfo existingFile  = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                existingFile  = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 Inventory = new ExcelPackage(existingFile);
 
-                ExcelWorksheet worksheet = Inventory.Workbook.Worksheets[0];
+                worksheet = Inventory.Workbook.Worksheets[0];
 
-                int colCount = worksheet.Dimension.End.Column;
-                int rowCount = worksheet.Dimension.End.Row;
+                colCount = worksheet.Dimension.End.Column;
+                rowCount = worksheet.Dimension.End.Row;
 
                 for(int row = 2; row <= rowCount; row++)
                 {
@@ -40,6 +44,7 @@ namespace SimpleEPR.Entities
                     Products.Add(p);
                  
                 }
+                Inventory.Save();
 
             }
             catch(IOException e)
@@ -51,8 +56,9 @@ namespace SimpleEPR.Entities
             {
                 if (Inventory != null)
                 {
-                    
+
                     Inventory.Dispose();
+                    
                 }
             }
         }
@@ -69,5 +75,110 @@ namespace SimpleEPR.Entities
             Console.WriteLine("+---------------------------------+");
         }
 
+        public static void AddItem(int Id ,int Quantity)
+        {
+            for(int i = 0; i < rowCount; i++)
+            {
+                if ( Products[i].Id == Id)
+                {
+                    Products[i].Quantity += Quantity;
+                    try
+                    {
+                        existingFile = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        Inventory = new ExcelPackage(existingFile);
+                        worksheet = Inventory.Workbook.Worksheets[0];
+
+                        colCount = worksheet.Dimension.End.Column;
+                        rowCount = worksheet.Dimension.End.Row;
+
+                        worksheet.Cells[i+2, 4].Value = Products[i].Quantity;
+
+
+
+                        Inventory.Save();
+
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("An error occurred");
+                        Console.WriteLine(e.Message);
+                    }
+                    finally
+                    {
+                        if (Inventory != null)
+                        {
+
+                            Inventory.Dispose();
+
+                        }
+                    }
+                    Console.WriteLine("Modified quantity");
+                    return;
+                }
+               
+            }
+            Console.WriteLine("Product not found");
+            return;
+        }
+
+
+        public static void AddNewItem(int Id, string Name, double Price, int Quantity) 
+        {
+            foreach(Product p in Products)
+            {
+                if (p.Name == Name || p.Id == Id)
+                {
+                    if(p.Name == Name)
+                    {
+                        Console.WriteLine("This product is already in inventory. Name: "+ Name );
+                    }
+                    else
+                    {
+                        Console.WriteLine("This product is already in inventory. Id:" + Id);
+                    }
+                    
+                    return;
+                }
+                
+            }
+            try
+            {
+                existingFile = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                Inventory = new ExcelPackage(existingFile);
+                worksheet = Inventory.Workbook.Worksheets[0];
+
+                colCount = worksheet.Dimension.End.Column;
+                rowCount = worksheet.Dimension.End.Row;
+                rowCount++;
+                Product p = new Product(Id, Name, Price, Quantity);
+                Products.Add(p);
+
+                worksheet.Cells[rowCount, 1].Value = Id;
+                worksheet.Cells[rowCount, 2].Value = Name;
+                worksheet.Cells[rowCount, 3].Value = Price;
+                worksheet.Cells[rowCount, 4].Value = Quantity;
+
+              
+
+                Inventory.Save();
+
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("An error occurred");
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                if (Inventory != null)
+                {
+
+                    Inventory.Dispose();
+
+                }
+            }
+        }
     }
 }
