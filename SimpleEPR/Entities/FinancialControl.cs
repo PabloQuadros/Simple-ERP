@@ -4,7 +4,8 @@ using System.Text;
 
 namespace SimpleEPR.Entities
 {
-    internal class FinancialControl
+    internal abstract  class FinancialControl
     {
+       
     }
 }

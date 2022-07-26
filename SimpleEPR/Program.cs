@@ -1,12 +1,19 @@
 ﻿using System;
+using System.IO;
+using SimpleEPR.Entities;
 
 namespace SimpleEPR
 {
     internal class Program
     {
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-        }
+            Directory.CreateDirectory(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles");
+
+            InventoryControl.ReadInventory();
+            InventoryControl.PrintInventory();
+            
+        }    
     }
 }
