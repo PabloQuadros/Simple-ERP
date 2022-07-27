@@ -2,6 +2,8 @@
 using System.IO;
 using SimpleEPR.Entities;
 
+
+
 namespace SimpleEPR
 {
     internal class Program
@@ -9,13 +11,11 @@ namespace SimpleEPR
 
         static void Main(string[] args)
         {
-            Directory.CreateDirectory(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles");
-
+           // Directory.CreateDirectory(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles");
+           
             InventoryControl.ReadInventory();
             InventoryControl.PrintInventory();
-           
-           
-           
+
 
 
         }    

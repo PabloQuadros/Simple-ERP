@@ -16,50 +16,99 @@ namespace SimpleEPR.Entities
         public static int rowCount { get; set; }
 
         static FileInfo existingFile;
-        
+        public static string pathInventory = @"C:\Users\Public\Documents\Inventory.xlsx";
         static ExcelPackage Inventory = null;
         static ExcelWorksheet worksheet;
         public  static void ReadInventory()
         {
-            try
+            if (File.Exists(pathInventory))
             {
-                existingFile  = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                Inventory = new ExcelPackage(existingFile);
-
-                worksheet = Inventory.Workbook.Worksheets[0];
-
-                colCount = worksheet.Dimension.End.Column;
-                rowCount = worksheet.Dimension.End.Row;
-
-                for(int row = 2; row <= rowCount; row++)
+                try
                 {
-                    int Id = int.Parse(worksheet.Cells[row, 1].Value.ToString());
-                    string Name = worksheet.Cells[row, 2].Value.ToString();
-                    double Price = double.Parse(worksheet.Cells[row, 3].Value.ToString());
-                    int Quantity = int.Parse(worksheet.Cells[row, 4].Value.ToString());
-                   
 
-                    Product p = new Product(Id, Name, Price, Quantity);
+                    existingFile = new FileInfo(pathInventory);
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    Inventory = new ExcelPackage(existingFile);
 
-                    Products.Add(p);
-                 
+                    worksheet = Inventory.Workbook.Worksheets[0];
+
+                    colCount = worksheet.Dimension.End.Column;
+                    rowCount = worksheet.Dimension.End.Row;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        int Id = int.Parse(worksheet.Cells[row, 1].Value.ToString());
+                        string Name = worksheet.Cells[row, 2].Value.ToString();
+                        double Price = double.Parse(worksheet.Cells[row, 3].Value.ToString());
+                        int Quantity = int.Parse(worksheet.Cells[row, 4].Value.ToString());
+
+
+                        Product p = new Product(Id, Name, Price, Quantity);
+
+                        Products.Add(p);
+
+                    }
+                    Inventory.Save();
+
                 }
-                Inventory.Save();
+                catch (IOException e)
+                {
+                    Console.WriteLine("An error occurred");
+                    Console.WriteLine(e.Message);
+                }
+                finally
+                {
+                    if (Inventory != null)
+                    {
 
+                        Inventory.Dispose();
+
+                    }
+                }
             }
-            catch(IOException e)
+            else
             {
-                Console.WriteLine("An error occurred");
-                Console.WriteLine(e.Message);
-            }
-            finally
-            {
-                if (Inventory != null)
+                Console.WriteLine(@"Inventory file created in path: C:\Users\Public\Documents\Inventory.xlsx");
+                
+                
+                try
                 {
 
-                    Inventory.Dispose();
+                    //existingFile = new FileInfo(pathInventory);
+                   ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                   Inventory = new ExcelPackage();
+
+                    worksheet = Inventory.Workbook.Worksheets.Add("Inventory");
                     
+                    
+                    //colCount = worksheet.Dimension.End.Column;
+                   // rowCount = worksheet.Dimension.End.Row;
+
+                    worksheet.Cells[1, 1].Value = "ID";
+                    worksheet.Cells[1, 2].Value = "Name";
+                    worksheet.Cells[1, 3].Value = "Price";
+                    worksheet.Cells[1, 4].Value = "Quantity";
+                    Inventory.Save();
+
+                    FileStream obj = File.Create(pathInventory);
+                    obj.Close();
+                    File.WriteAllBytes(pathInventory, Inventory.GetAsByteArray());
+                    
+
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine("An error occurred");
+                    Console.WriteLine(e.Message);
+                }
+                finally
+                {
+                    if (Inventory != null)
+                    {
+
+                        Inventory.Dispose();
+
+                    }
                 }
             }
         }
