@@ -5,9 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
+
 namespace SimpleEPR.Entities
 {
-    internal class InventoryControl
+    internal abstract class InventoryControl
     {
    
         public static List<Product> Products { get; private set; } = new List<Product>();
@@ -77,7 +78,7 @@ namespace SimpleEPR.Entities
 
         public static void AddItem(int Id ,int Quantity)
         {
-            for(int i = 0; i < rowCount; i++)
+            for(int i = 0; i < rowCount-1; i++)
             {
                 if ( Products[i].Id == Id)
                 {
@@ -121,7 +122,6 @@ namespace SimpleEPR.Entities
             Console.WriteLine("Product not found");
             return;
         }
-
 
         public static void AddNewItem(int Id, string Name, double Price, int Quantity) 
         {
@@ -180,5 +180,114 @@ namespace SimpleEPR.Entities
                 }
             }
         }
+   
+        public static void DecreaseQuantity(int Id, int Quantity)
+        {
+            for (int i = 0; i < rowCount-1; i++)
+            {
+                if (Products[i].Id == Id)
+                {
+                    int aux = Products[i].Quantity;
+                    if ((aux -= Quantity) >= 0)
+                    {
+                        Products[i].Quantity -= Quantity;
+                        try
+                        {
+                            existingFile = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                            Inventory = new ExcelPackage(existingFile);
+                            worksheet = Inventory.Workbook.Worksheets[0];
+
+                            colCount = worksheet.Dimension.End.Column;
+                            rowCount = worksheet.Dimension.End.Row;
+
+                            worksheet.Cells[i + 2, 4].Value = Products[i].Quantity;
+
+
+
+                            Inventory.Save();
+
+                        }
+                        catch (IOException e)
+                        {
+                            Console.WriteLine("An error occurred");
+                            Console.WriteLine(e.Message);
+                        }
+                        finally
+                        {
+                            if (Inventory != null)
+                            {
+
+                                Inventory.Dispose();
+
+                            }
+                        }
+                        Console.WriteLine("Modified quantity");
+                        return;
+                    }
+                    Console.WriteLine($"Invalid quantity.There are only {Products[i].Quantity} unit(s) in stock and {Quantity} unit is being taken out.");
+                    return;              
+                }
+
+            }
+            Console.WriteLine("Product not found");
+            return;
+        }
+
+        public static void Removeitem(int Id)
+        {
+            for (int i = 0; i < rowCount - 1; i++)
+            {
+                if (Products[i].Id == Id)
+                {
+                    Products.Remove(Products[i]);
+                    try
+                    {
+                        existingFile = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        Inventory = new ExcelPackage(existingFile);
+                        worksheet = Inventory.Workbook.Worksheets[0];
+
+
+                        worksheet.Cells[i + 2, 1].Delete(eShiftTypeDelete.Up);
+                        worksheet.Cells[i + 2, 2].Delete(eShiftTypeDelete.Up);
+                        worksheet.Cells[i + 2, 3].Delete(eShiftTypeDelete.Up);
+                        worksheet.Cells[i + 2, 4].Delete(eShiftTypeDelete.Up);
+
+
+                        colCount = worksheet.Dimension.End.Column;
+                        rowCount = worksheet.Dimension.End.Row;
+
+                        
+
+
+
+                        Inventory.Save();
+
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("An error occurred");
+                        Console.WriteLine(e.Message);
+                    }
+                    finally
+                    {
+                        if (Inventory != null)
+                        {
+
+                            Inventory.Dispose();
+
+                        }
+                    }
+                    Console.WriteLine("Product removed");
+                    return;
+                }
+
+
+            }
+            Console.WriteLine("Product not found");
+            return;
+        }
     }
+            
 }
