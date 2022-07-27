@@ -13,7 +13,8 @@ namespace SimpleEPR
 
             InventoryControl.ReadInventory();
             InventoryControl.PrintInventory();
-            InventoryControl.DecreaseQuantity(1422, 14);
+           
+           
            
 
 

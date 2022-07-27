@@ -76,7 +76,7 @@ namespace SimpleEPR.Entities
             Console.WriteLine("+---------------------------------+");
         }
 
-        public static void AddItem(int Id ,int Quantity)
+        public static void IncreaseQuantity(int Id ,int Quantity)
         {
             for(int i = 0; i < rowCount-1; i++)
             {
@@ -288,6 +288,51 @@ namespace SimpleEPR.Entities
             Console.WriteLine("Product not found");
             return;
         }
-    }
-            
+
+        public static void ModifyPrice(int Id, double NewPrice)
+        {
+            for (int i = 0; i < rowCount - 1; i++)
+            {
+                if (Products[i].Id == Id)
+                {
+                    Products[i].Price = NewPrice;
+                    try
+                    {
+                        existingFile = new FileInfo(@"C:\VsCodeProjects\SimpleERP\SimpleErpFiles\Inventory.xlsx");
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        Inventory = new ExcelPackage(existingFile);
+                        worksheet = Inventory.Workbook.Worksheets[0];
+
+                        colCount = worksheet.Dimension.End.Column;
+                        rowCount = worksheet.Dimension.End.Row;
+
+                        worksheet.Cells[i + 2, 3].Value = Products[i].Price;
+
+
+                        Inventory.Save();
+
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("An error occurred");
+                        Console.WriteLine(e.Message);
+                    }
+                    finally
+                    {
+                        if (Inventory != null)
+                        {
+
+                            Inventory.Dispose();
+
+                        }
+                    }
+                    Console.WriteLine("Modified Price");
+                    return;
+                }
+
+            }
+            Console.WriteLine("Product not found");
+            return;
+        }
+    }        
 }
